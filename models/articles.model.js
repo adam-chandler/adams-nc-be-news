@@ -58,12 +58,7 @@ exports.selectComments = (article_id, sort_by, order_by) => {
         msg: "No article exists with this id."
       });
     }
-    if (comments.length === 0) {
-      return Promise.reject({
-        status: 200,
-        msg: "This article currently has no comments."
-      });
-    }
+
     comments.forEach(comment => delete comment.article_id);
     return comments;
   });
@@ -89,21 +84,29 @@ exports.selectAllArticles = (sort_by, order, author, topic) => {
         if (author) {
           query.where("articles.author", author);
         }
+      })
+      .modify(query => {
+        if (topic) {
+          query.where("articles.topic", topic);
+        }
       }),
     client("users")
       .select("*")
-      .where("username", author || "*")
-  ]).then(([articles, user]) => {
+      .where("username", author || "*"),
+    client("topics")
+      .select("*")
+      .where("slug", topic || "*")
+  ]).then(([articles, user, outputTopic]) => {
     if (author && user.length === 0) {
       return Promise.reject({
         status: 404,
         msg: "Author not found"
       });
     }
-    if (author && articles.length === 0) {
+    if (topic && outputTopic.length === 0) {
       return Promise.reject({
-        status: 200,
-        msg: "This user has no articles"
+        status: 404,
+        msg: "Topic not found"
       });
     }
     return articles;

@@ -196,13 +196,44 @@ describe("/api ", () => {
         return request(app)
           .get("/api/articles/?author=lurker")
           .expect(200)
-          .then(({ body: { msg } }) => {
-            expect(msg).to.equal("This user has no articles");
+          .then(res => {
+            expect(res.body.articles).to.eql([]);
           });
       });
-      // it("GET: 200 - Topic query that filters by topic", () => {});
-      // it("GET: 404 - Topic that does not exist", () => {});
-      // it("GET: 200 - Topic that does exist with no articles", () => {});
+      it("GET: 200 - Topic query that filters by topic", () => {
+        return request(app)
+          .get("/api/articles/?topic=cats")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles[0].topic).to.equal("cats");
+          });
+      });
+      it("GET: 404 - Topic that does not exist", () => {
+        return request(app)
+          .get("/api/articles/?topic=does-not-exist")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Topic not found");
+          });
+      });
+      it("GET: 200 - Topic that does exist with no articles responds with empty array", () => {
+        return request(app)
+          .get("/api/articles/?topic=paper")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles).to.eql([]);
+          });
+      });
+      it("GET: 200 - Topic and author work simultaneously", () => {
+        return request(app)
+          .get("/api/articles/?topic=mitch&author=rogersop")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles.length).to.eql(2);
+            expect(res.body.articles[0].author).to.eql("rogersop");
+            expect(res.body.articles[0].topic).to.eql("mitch");
+          });
+      });
     });
     describe("INVALID METHODS", () => {
       it("INVALID METHODS: 405 and method not allowed", () => {
@@ -498,15 +529,13 @@ describe("/api ", () => {
                 });
               });
           });
-          it("GET: 200 - responds with an object containing a no comments message", () => {
+          it("GET: 200 - responds with an object containing empty array", () => {
             return request(app)
               .get("/api/articles/2/comments")
               .expect(200)
               .then(res => {
                 expect(res.body).to.be.an("object");
-                expect(res.body.msg).to.eql(
-                  "This article currently has no comments."
-                );
+                expect(res.body.comments).to.eql([]);
               });
           });
           it("GET: 400 - sort_by is not a column name", () => {
@@ -560,7 +589,7 @@ describe("/api ", () => {
     });
   });
   describe("/comments", () => {
-    describe("/comment_id", () => {
+    describe("/:comment_id", () => {
       describe("PATCH", () => {
         it("PATCH: 200 - Updates vote and responeds with updated comment", () => {
           return request(app)
@@ -631,6 +660,45 @@ describe("/api ", () => {
             .send({ Invalid: "Input" })
             .expect(400)
             .then(({ body: { msg } }) => expect(msg).to.equal("Bad request"));
+        });
+        it("PATCH: 404 - Valid comment ID which does not exist", () => {
+          return request(app)
+            .patch("/api/comments/999")
+            .send({ inc_votes: 2 })
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Comment not found");
+            });
+        });
+        it("PATCH: 400 - Invalid comment ID", () => {
+          return request(app)
+            .patch("/api/comments/not-an-comment-id")
+            .send({ inc_votes: 7 })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Bad request");
+            });
+        });
+      });
+      describe("DELETE", () => {
+        it("DELETE: 204 - no content for successful deletion", () => {
+          return request(app)
+            .delete("/api/comments/3")
+            .expect(204);
+        });
+      });
+      describe("INVALID METHODS", () => {
+        it("INVALID METHODS: 405 and method not allowed", () => {
+          const invalidMethods = ["get", "post"];
+          const methodPromises = invalidMethods.map(method => {
+            return request(app)
+              [method]("/api/comments/3")
+              .expect(405)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("method not allowed");
+              });
+          });
+          return Promise.all(methodPromises);
         });
       });
     });
