@@ -12,7 +12,7 @@ exports.selectArticle = article_id => {
       "articles.votes"
     )
     .count("comments.comment_id AS comment_count")
-    .join("comments", "comments.article_id", "articles.article_id")
+    .leftJoin("comments", "comments.article_id", "articles.article_id")
     .groupBy("articles.article_id")
     .where("articles.article_id", article_id)
     .then(res => {
@@ -69,4 +69,43 @@ exports.selectComments = (article_id, sort_by, order_by) => {
   });
 };
 
-exports.selectArticles = () => {};
+exports.selectAllArticles = (sort_by, order, author, topic) => {
+  return Promise.all([
+    client("articles")
+      .select(
+        "articles.author",
+        "articles.title",
+        "articles.article_id",
+        "articles.body",
+        "topic",
+        "articles.created_at",
+        "articles.votes"
+      )
+      .count("comments.comment_id AS comment_count")
+      .orderBy(sort_by || "created_at", order || "asc")
+      .leftJoin("comments", "comments.article_id", "articles.article_id")
+      .groupBy("articles.article_id")
+      .modify(query => {
+        if (author) {
+          query.where("articles.author", author);
+        }
+      }),
+    client("users")
+      .select("*")
+      .where("username", author || "*")
+  ]).then(([articles, user]) => {
+    if (author && user.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "Author not found"
+      });
+    }
+    if (author && articles.length === 0) {
+      return Promise.reject({
+        status: 200,
+        msg: "This user has no articles"
+      });
+    }
+    return articles;
+  });
+};

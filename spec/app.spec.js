@@ -96,10 +96,10 @@ describe("/api ", () => {
     describe("GET", () => {
       it("Returns all article objects in an array", () => {
         return request(app)
-          .get("/api/atricles")
+          .get("/api/articles")
           .expect(200)
           .then(({ body }) => {
-            expect(body.articles).to.have.keys(
+            expect(body.articles[0]).to.have.keys(
               "author",
               "title",
               "article_id",
@@ -111,9 +111,98 @@ describe("/api ", () => {
             );
             expect(body).to.be.an("object");
             expect(body.articles).to.be.an("array");
-            expect(body.articles).to.have.length(17);
+            expect(body.articles).to.have.length(12);
           });
       });
+      it("GET: 200 - Has a comment count with the number of comments for a given article", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles[3].comment_count).to.equal("2");
+          });
+      });
+      it("GET: 200 - sort_by and order by default to created_at and asc", () => {
+        return request(app)
+          .get("/api/articles/")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles).to.be.sortedBy("created_at");
+          });
+      });
+      it("GET: 200 - sort_by other columns", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=body")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles).to.be.sortedBy("body");
+          });
+      });
+      it("GET: 200 - order descending", () => {
+        return request(app)
+          .get("/api/articles/?order=desc")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles).to.be.sortedBy("created_at", {
+              descending: true
+            });
+          });
+      });
+      it("GET: 200 - sort_by and order work simultaneously", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=body&order=desc")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles).to.be.sortedBy("body", {
+              descending: true
+            });
+          });
+      });
+      it("GET: 400 - sort_by is not a column name", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=not-a-column")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Bad request");
+          });
+      });
+      it("GET: 400 - order is invalid input", () => {
+        return request(app)
+          .get("/api/articles/?order=invalid-input")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("order_by takes values asc or desc");
+          });
+      });
+      it("GET: 200 - Author query that filter by author", () => {
+        return request(app)
+          .get("/api/articles/?author=icellusedkars")
+          .expect(200)
+          .then(res => {
+            expect(res.body.articles[0].author).to.equal("icellusedkars");
+            expect(res.body.articles[1].author).to.equal("icellusedkars");
+            expect(res.body.articles[2].author).to.equal("icellusedkars");
+          });
+      });
+      it("GET: 404 - Author that does not exist", () => {
+        return request(app)
+          .get("/api/articles/?author=does-not-exist")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Author not found");
+          });
+      });
+      it("GET: 200 - Author that does exist with no articles", () => {
+        return request(app)
+          .get("/api/articles/?author=lurker")
+          .expect(200)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("This user has no articles");
+          });
+      });
+      // it("GET: 200 - Topic query that filters by topic", () => {});
+      // it("GET: 404 - Topic that does not exist", () => {});
+      // it("GET: 200 - Topic that does exist with no articles", () => {});
     });
     describe("INVALID METHODS", () => {
       it("INVALID METHODS: 405 and method not allowed", () => {
@@ -248,6 +337,13 @@ describe("/api ", () => {
             .expect(400)
             .then(({ body: { msg } }) => expect(msg).to.equal("Bad request"));
         });
+        it("PATCH: 400 - No inc_votes on request body", () => {
+          return request(app)
+            .patch("/api/articles/6")
+            .send({ Bad: "request" })
+            .expect(400)
+            .then(({ body: { msg } }) => expect(msg).to.equal("Bad request"));
+        });
       });
       describe("INVALID METHODS", () => {
         it("INVALID METHODS: 405 and method not allowed", () => {
@@ -371,7 +467,7 @@ describe("/api ", () => {
               .get("/api/articles/1/comments")
               .expect(200)
               .then(res => {
-                expect(res.body.comments).to.be.sorted("created_at");
+                expect(res.body.comments).to.be.sortedBy("created_at");
               });
           });
           it("GET: 200 - sort_by other columns", () => {
@@ -402,7 +498,7 @@ describe("/api ", () => {
                 });
               });
           });
-          it("GET: 200 - responds with an object containing empty array when an article has no comments", () => {
+          it("GET: 200 - responds with an object containing a no comments message", () => {
             return request(app)
               .get("/api/articles/2/comments")
               .expect(200)
@@ -459,6 +555,82 @@ describe("/api ", () => {
             });
             return Promise.all(methodPromises);
           });
+        });
+      });
+    });
+  });
+  describe("/comments", () => {
+    describe("/comment_id", () => {
+      describe("PATCH", () => {
+        it("PATCH: 200 - Updates vote and responeds with updated comment", () => {
+          return request(app)
+            .patch("/api/comments/14")
+            .send({ inc_votes: 3 })
+            .expect(200)
+            .then(({ body: { comment } }) => {
+              expect(comment.comment_id).to.equal(14);
+              expect(comment.votes).to.equal(19);
+              expect(comment).to.have.keys(
+                "author",
+                "created_at",
+                "article_id",
+                "body",
+                "comment_id",
+                "votes"
+              );
+            });
+        });
+        it("PATCH: 200 - Works with negative number of votes", () => {
+          return request(app)
+            .patch("/api/comments/14")
+            .send({ inc_votes: -100 })
+            .expect(200)
+            .then(({ body: { comment } }) => {
+              expect(comment.votes).to.equal(-84);
+            });
+        });
+        it("PATCH: 200 - Cumulative", () => {
+          return request(app)
+            .patch("/api/comments/14")
+            .send({ inc_votes: 5 })
+            .expect(200)
+            .then(() => {
+              return request(app)
+                .patch("/api/comments/14")
+                .send({ inc_votes: 5 })
+                .expect(200)
+                .then(({ body: { comment } }) => {
+                  expect(comment.votes).to.equal(26);
+                });
+            });
+        });
+        it("PATCH: 400 - No inc_votes on request body", () => {
+          return request(app)
+            .patch("/api/comments/14")
+            .send({})
+            .expect(400)
+            .then(({ body: { msg } }) => expect(msg).to.equal("Bad request"));
+        });
+        it("PATCH: 400 - Invalid input as value of inc_votes", () => {
+          return request(app)
+            .patch("/api/comments/14")
+            .send({ inc_votes: "Invalid-input" })
+            .expect(400)
+            .then(({ body: { msg } }) => expect(msg).to.equal("Bad request"));
+        });
+        it("PATCH: 400 - Extra properties on request body", () => {
+          return request(app)
+            .patch("/api/comments/14")
+            .send({ inc_votes: 1, invalidExtraKey: "Invalid extra value" })
+            .expect(400)
+            .then(({ body: { msg } }) => expect(msg).to.equal("Bad request"));
+        });
+        it("PATCH: 400 - One key that isnt inc_votes", () => {
+          return request(app)
+            .patch("/api/comments/14")
+            .send({ Invalid: "Input" })
+            .expect(400)
+            .then(({ body: { msg } }) => expect(msg).to.equal("Bad request"));
         });
       });
     });

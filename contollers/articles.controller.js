@@ -3,7 +3,7 @@ const {
   updateArticleVotes,
   insertComment,
   selectComments,
-  selectArticles
+  selectAllArticles
 } = require("../models/articles.model");
 
 exports.getArticle = (req, res, next) => {
@@ -15,7 +15,8 @@ exports.getArticle = (req, res, next) => {
 };
 
 exports.patchArticleVotes = (req, res, next) => {
-  if (Object.keys(req.body).length !== 1) {
+  const keys = Object.keys(req.body);
+  if (keys.length !== 1 || keys[0] !== "inc_votes") {
     next({ status: 400, msg: "Bad request" });
   }
 
@@ -61,7 +62,14 @@ exports.getComments = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const { sort_by, order, author, topic } = req.query;
-  selectArticles(sort_by, order, author, topic).then(articles => {
-    res.status(400).send(articles);
-  });
+  if (order) {
+    if (order !== "asc" && order !== "desc") {
+      next({ status: 400, msg: "order_by takes values asc or desc" });
+    }
+  }
+  selectAllArticles(sort_by, order, author, topic)
+    .then(articles => {
+      res.status(200).send({ articles });
+    })
+    .catch(next);
 };
