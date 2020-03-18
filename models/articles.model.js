@@ -1,6 +1,6 @@
 const client = require("../db/index");
 
-selectArticle = article_id => {
+exports.selectArticle = article_id => {
   return client("articles")
     .select(
       "articles.author",
@@ -18,13 +18,12 @@ selectArticle = article_id => {
     .then(res => {
       if (res.length === 0) {
         return Promise.reject({ msg: "Article not found", status: 404 });
-      } else {
-        return res[0];
       }
+      return res[0];
     });
 };
 
-updateArticleVotes = (article_id, newVotes) => {
+exports.updateArticleVotes = (article_id, newVotes) => {
   return client("articles")
     .increment("votes", newVotes)
     .where("articles.article_id", article_id)
@@ -32,4 +31,42 @@ updateArticleVotes = (article_id, newVotes) => {
     .then(res => res[0]);
 };
 
-module.exports = { selectArticle, updateArticleVotes };
+exports.insertComment = (username, body, article_id) => {
+  return client("comments")
+    .insert({
+      author: username,
+      article_id,
+      body
+    })
+    .returning("*")
+    .then(res => res[0]);
+};
+
+exports.selectComments = (article_id, sort_by, order_by) => {
+  return Promise.all([
+    client("comments")
+      .select("*")
+      .where("article_id", article_id)
+      .orderBy(sort_by || "created_at", order_by || "asc"),
+    client("articles")
+      .select("*")
+      .where("article_id", article_id)
+  ]).then(([comments, article]) => {
+    if (article.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "No article exists with this id."
+      });
+    }
+    if (comments.length === 0) {
+      return Promise.reject({
+        status: 200,
+        msg: "This article currently has no comments."
+      });
+    }
+    comments.forEach(comment => delete comment.article_id);
+    return comments;
+  });
+};
+
+exports.selectArticles = () => {};

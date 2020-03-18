@@ -4,16 +4,17 @@ const apiRouter = require("./routes/api.route");
 const {
   handleCustomErrors,
   handlePSQLErrors,
-  handleUnknownRoutes
+  handleUnknownRoutes,
+  serverError
 } = require("./errors/errors");
 
 app.use(express.json());
 
 app.use("/api", apiRouter);
 
-app.use(handleCustomErrors);
-
 app.use(handlePSQLErrors);
+app.use(handleCustomErrors);
+app.use(serverError);
 
 app.all("/*", handleUnknownRoutes);
 
