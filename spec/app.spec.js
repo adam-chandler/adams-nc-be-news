@@ -26,6 +26,14 @@ describe("/api ", () => {
         expect(msg).to.equal("Route not found");
       });
   });
+  it("GET: 200 - Send endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(res => {
+        expect(res.body).to.be.an("object");
+      });
+  });
   describe("/topics", () => {
     describe("GET", () => {
       it("GET: 200 - Responds an object cotaining an array of topics", () => {
