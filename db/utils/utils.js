@@ -1,19 +1,19 @@
-exports.formatDates = list => {
-  return list.map(article => {
+exports.formatDates = (list) => {
+  return list.map((article) => {
     let newArticle = { ...article };
     newArticle.created_at = new Date(newArticle.created_at);
     return newArticle;
   });
 };
 
-exports.makeRefObj = array => {
+exports.makeRefObj = (array) => {
   const lookUp = {};
-  array.forEach(article => (lookUp[article.title] = article.article_id));
+  array.forEach((article) => (lookUp[article.title] = article.article_id));
   return lookUp;
 };
 
 exports.formatComments = (comments, articleRef) => {
-  return comments.map(comment => {
+  return comments.map((comment) => {
     let newComment = { ...comment };
     newComment.author = newComment.created_by;
     delete newComment.created_by;

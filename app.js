@@ -5,17 +5,16 @@ const {
   handleCustomErrors,
   handlePSQLErrors,
   handleUnknownRoutes,
-  serverError
+  serverError,
 } = require("./errors/errors");
 
 app.use(express.json());
 
 app.use("/api", apiRouter);
+app.all("/*", handleUnknownRoutes);
 
 app.use(handlePSQLErrors);
 app.use(handleCustomErrors);
 app.use(serverError);
-
-app.all("/*", handleUnknownRoutes);
 
 module.exports = app;
