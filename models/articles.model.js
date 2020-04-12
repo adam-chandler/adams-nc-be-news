@@ -1,6 +1,6 @@
 const client = require("../db/index");
 
-exports.selectArticle = article_id => {
+exports.selectArticle = (article_id) => {
   return client("articles")
     .select(
       "articles.author",
@@ -15,7 +15,7 @@ exports.selectArticle = article_id => {
     .leftJoin("comments", "comments.article_id", "articles.article_id")
     .groupBy("articles.article_id")
     .where("articles.article_id", article_id)
-    .then(res => {
+    .then((res) => {
       if (res.length === 0) {
         return Promise.reject({ msg: "Article not found", status: 404 });
       }
@@ -28,40 +28,7 @@ exports.updateArticleVotes = (article_id, newVotes) => {
     .increment("votes", newVotes)
     .where("articles.article_id", article_id)
     .returning("*")
-    .then(res => res[0]);
-};
-
-exports.insertComment = (username, body, article_id) => {
-  return client("comments")
-    .insert({
-      author: username,
-      article_id,
-      body
-    })
-    .returning("*")
-    .then(res => res[0]);
-};
-
-exports.selectComments = (article_id, sort_by, order_by) => {
-  return Promise.all([
-    client("comments")
-      .select("*")
-      .where("article_id", article_id)
-      .orderBy(sort_by || "created_at", order_by || "asc"),
-    client("articles")
-      .select("*")
-      .where("article_id", article_id)
-  ]).then(([comments, article]) => {
-    if (article.length === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: "No article exists with this id."
-      });
-    }
-
-    comments.forEach(comment => delete comment.article_id);
-    return comments;
-  });
+    .then((res) => res[0]);
 };
 
 exports.selectAllArticles = (sort_by, order, author, topic) => {
@@ -77,15 +44,15 @@ exports.selectAllArticles = (sort_by, order, author, topic) => {
         "articles.votes"
       )
       .count("comments.comment_id AS comment_count")
-      .orderBy(sort_by || "created_at", order || "asc")
+      .orderBy(sort_by || "created_at", order || "desc")
       .leftJoin("comments", "comments.article_id", "articles.article_id")
       .groupBy("articles.article_id")
-      .modify(query => {
+      .modify((query) => {
         if (author) {
           query.where("articles.author", author);
         }
       })
-      .modify(query => {
+      .modify((query) => {
         if (topic) {
           query.where("articles.topic", topic);
         }
@@ -95,18 +62,18 @@ exports.selectAllArticles = (sort_by, order, author, topic) => {
       .where("username", author || "*"),
     client("topics")
       .select("*")
-      .where("slug", topic || "*")
+      .where("slug", topic || "*"),
   ]).then(([articles, user, outputTopic]) => {
     if (author && user.length === 0) {
       return Promise.reject({
         status: 404,
-        msg: "Author not found"
+        msg: "Author not found",
       });
     }
     if (topic && outputTopic.length === 0) {
       return Promise.reject({
         status: 404,
-        msg: "Topic not found"
+        msg: "Topic not found",
       });
     }
     return articles;

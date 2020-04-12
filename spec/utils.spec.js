@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const {
   formatDates,
   makeRefObj,
-  formatComments
+  formatComments,
 } = require("../db/utils/utils");
 
 describe("formatDates", () => {
@@ -16,8 +16,8 @@ describe("formatDates", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     expect(formatDates(input)).to.not.equal(input);
   });
@@ -28,8 +28,8 @@ describe("formatDates", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     expect(formatDates(input)[0]).to.have.all.keys(
       "title",
@@ -46,8 +46,8 @@ describe("formatDates", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     let expected = [
       {
@@ -55,8 +55,8 @@ describe("formatDates", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: new Date(785420514171)
-      }
+        created_at: new Date(785420514171),
+      },
     ];
     expect(formatDates(input)).to.eql(expected);
   });
@@ -67,22 +67,22 @@ describe("formatDates", () => {
         topic: "cats",
         author: "rogersop",
         body: "Bastet walks amongst us, and the cats are taking arms!",
-        created_at: 1037708514171
+        created_at: 1037708514171,
       },
       {
         title: "A",
         topic: "mitch",
         author: "icellusedkars",
         body: "Delicious tin of cat food",
-        created_at: 911564514171
+        created_at: 911564514171,
       },
       {
         title: "Z",
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     let expected = [
       {
@@ -90,22 +90,22 @@ describe("formatDates", () => {
         topic: "cats",
         author: "rogersop",
         body: "Bastet walks amongst us, and the cats are taking arms!",
-        created_at: new Date(1037708514171)
+        created_at: new Date(1037708514171),
       },
       {
         title: "A",
         topic: "mitch",
         author: "icellusedkars",
         body: "Delicious tin of cat food",
-        created_at: new Date(911564514171)
+        created_at: new Date(911564514171),
       },
       {
         title: "Z",
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: new Date(785420514171)
-      }
+        created_at: new Date(785420514171),
+      },
     ];
     expect(formatDates(input)).to.eql(expected);
   });
@@ -116,22 +116,22 @@ describe("formatDates", () => {
         topic: "cats",
         author: "rogersop",
         body: "Bastet walks amongst us, and the cats are taking arms!",
-        created_at: 1037708514171
+        created_at: 1037708514171,
       },
       {
         title: "A",
         topic: "mitch",
         author: "icellusedkars",
         body: "Delicious tin of cat food",
-        created_at: 911564514171
+        created_at: 911564514171,
       },
       {
         title: "Z",
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     let expected = [
       {
@@ -139,22 +139,22 @@ describe("formatDates", () => {
         topic: "cats",
         author: "rogersop",
         body: "Bastet walks amongst us, and the cats are taking arms!",
-        created_at: 1037708514171
+        created_at: 1037708514171,
       },
       {
         title: "A",
         topic: "mitch",
         author: "icellusedkars",
         body: "Delicious tin of cat food",
-        created_at: 911564514171
+        created_at: 911564514171,
       },
       {
         title: "Z",
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     formatDates(input);
     expect(input).to.eql(expected);
@@ -181,7 +181,7 @@ describe("makeRefObj", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "Delicious tin of cat food",
-        created_at: 911564514171
+        created_at: 911564514171,
       },
       {
         article_id: 2,
@@ -189,8 +189,8 @@ describe("makeRefObj", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     const expected = { A: 1, Z: 2 };
     expect(makeRefObj(input)).to.eql(expected);
@@ -203,7 +203,7 @@ describe("makeRefObj", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "Delicious tin of cat food",
-        created_at: 911564514171
+        created_at: 911564514171,
       },
       {
         article_id: 2,
@@ -211,8 +211,8 @@ describe("makeRefObj", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     const expected = [
       {
@@ -221,7 +221,7 @@ describe("makeRefObj", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "Delicious tin of cat food",
-        created_at: 911564514171
+        created_at: 911564514171,
       },
       {
         article_id: 2,
@@ -229,8 +229,8 @@ describe("makeRefObj", () => {
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
-        created_at: 785420514171
-      }
+        created_at: 785420514171,
+      },
     ];
     makeRefObj(input);
     expect(input).to.eql(expected);
@@ -253,11 +253,11 @@ describe("formatComments", () => {
         belongs_to: "Halalou",
         created_by: "icellusedkars",
         votes: 0,
-        created_at: 1385210163389
-      }
+        created_at: 1385210163389,
+      },
     ];
     const input2 = {
-      Halalou: 1
+      Halalou: 1,
     };
     const expected = [
       {
@@ -265,31 +265,31 @@ describe("formatComments", () => {
         article_id: 1,
         author: "icellusedkars",
         votes: 0,
-        created_at: new Date(1385210163389)
-      }
+        created_at: new Date(1385210163389),
+      },
     ];
     expect(formatComments(input1, input2)).to.eql(expected);
   });
-  it("Formats a single item in an array correctly", () => {
+  it("Formats a multiple items in an array correctly", () => {
     const input1 = [
       {
         body: "I hate streaming noses",
         belongs_to: "Halalou",
         created_by: "icellusedkars",
         votes: 0,
-        created_at: 1385210163389
+        created_at: 1385210163389,
       },
       {
         body: "I hate blocked noses",
         belongs_to: "Plantie",
         created_by: "SammyBoy",
         votes: 0,
-        created_at: 1385210163311
-      }
+        created_at: 1385210163311,
+      },
     ];
     const input2 = {
       Halalou: 1,
-      Plantie: 5
+      Plantie: 5,
     };
     const expected = [
       {
@@ -297,17 +297,32 @@ describe("formatComments", () => {
         article_id: 1,
         author: "icellusedkars",
         votes: 0,
-        created_at: new Date(1385210163389)
+        created_at: new Date(1385210163389),
       },
       {
         body: "I hate blocked noses",
         article_id: 5,
         author: "SammyBoy",
         votes: 0,
-        created_at: new Date(1385210163311)
-      }
+        created_at: new Date(1385210163311),
+      },
     ];
     expect(formatComments(input1, input2)).to.eql(expected);
+  });
+  it("Input objects do not share reference with output objects", () => {
+    const input1 = [
+      {
+        body: "I hate streaming noses",
+        belongs_to: "Halalou",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: 1385210163389,
+      },
+    ];
+    const input2 = {
+      Halalou: 1,
+    };
+    expect(formatComments(input1, input2)[0]).to.not.equal(input1);
   });
   it("Does not mutate original array or reference obj", () => {
     const input1 = [
@@ -316,19 +331,19 @@ describe("formatComments", () => {
         belongs_to: "Halalou",
         created_by: "icellusedkars",
         votes: 0,
-        created_at: 1385210163389
+        created_at: 1385210163389,
       },
       {
         body: "I hate blocked noses",
         belongs_to: "Plantie",
         created_by: "SammyBoy",
         votes: 0,
-        created_at: 1385210163311
-      }
+        created_at: 1385210163311,
+      },
     ];
     const input2 = {
       Halalou: 1,
-      Plantie: 5
+      Plantie: 5,
     };
     const expected1 = [
       {
@@ -336,19 +351,19 @@ describe("formatComments", () => {
         belongs_to: "Halalou",
         created_by: "icellusedkars",
         votes: 0,
-        created_at: 1385210163389
+        created_at: 1385210163389,
       },
       {
         body: "I hate blocked noses",
         belongs_to: "Plantie",
         created_by: "SammyBoy",
         votes: 0,
-        created_at: 1385210163311
-      }
+        created_at: 1385210163311,
+      },
     ];
     const expected2 = {
       Halalou: 1,
-      Plantie: 5
+      Plantie: 5,
     };
     formatComments(input1, input2);
     expect(input1).to.eql(expected1);

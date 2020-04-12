@@ -2,10 +2,12 @@ const articlesRouter = require("express").Router();
 const {
   getArticle,
   patchArticleVotes,
+  getArticles,
+} = require("../contollers/articles.controller");
+const {
   postComment,
   getComments,
-  getArticles
-} = require("../contollers/articles.controller");
+} = require("../contollers/comments.controller");
 const { send405Error } = require("../errors/errors");
 
 articlesRouter
@@ -20,9 +22,6 @@ articlesRouter
   .get(getComments)
   .all(send405Error);
 
-articlesRouter
-  .route("/")
-  .get(getArticles)
-  .all(send405Error);
+articlesRouter.route("/").get(getArticles).all(send405Error);
 
 module.exports = articlesRouter;

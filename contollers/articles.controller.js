@@ -3,12 +3,12 @@ const {
   updateArticleVotes,
   insertComment,
   selectComments,
-  selectAllArticles
+  selectAllArticles,
 } = require("../models/articles.model");
 
 exports.getArticle = (req, res, next) => {
   selectArticle(req.params.article_id)
-    .then(article => {
+    .then((article) => {
       res.status(200).send({ article });
     })
     .catch(next);
@@ -17,7 +17,7 @@ exports.getArticle = (req, res, next) => {
 exports.patchArticleVotes = (req, res, next) => {
   const keys = Object.keys(req.body);
   if (keys.length !== 1 || keys[0] !== "inc_votes") {
-    next({ status: 400, msg: "Bad request" });
+    return next({ status: 400, msg: "Bad request" });
   }
 
   const article_id = req.params.article_id;
@@ -25,38 +25,7 @@ exports.patchArticleVotes = (req, res, next) => {
 
   updateArticleVotes(article_id, newVotes)
     .then(() => selectArticle(article_id))
-    .then(article => res.status(200).send({ article }))
-    .catch(next);
-};
-
-exports.postComment = (req, res, next) => {
-  if (Object.keys(req.body).length !== 2) {
-    next({ status: 400, msg: "Bad request" });
-  }
-
-  const { username, body } = req.body;
-  const { article_id } = req.params;
-
-  insertComment(username, body, article_id)
-    .then(comment => {
-      res.status(201).send(comment);
-    })
-    .catch(next);
-};
-
-exports.getComments = (req, res, next) => {
-  const { sort_by, order_by } = req.query;
-  const article_id = req.params.article_id;
-
-  if (order_by) {
-    if (order_by !== "asc" && order_by !== "desc") {
-      next({ status: 400, msg: "order_by takes values asc or desc" });
-    }
-  }
-  selectComments(article_id, sort_by, order_by)
-    .then(comments => {
-      res.status(200).send({ comments });
-    })
+    .then((article) => res.status(200).send({ article }))
     .catch(next);
 };
 
@@ -64,11 +33,11 @@ exports.getArticles = (req, res, next) => {
   const { sort_by, order, author, topic } = req.query;
   if (order) {
     if (order !== "asc" && order !== "desc") {
-      next({ status: 400, msg: "order_by takes values asc or desc" });
+      return next({ status: 400, msg: "order_by takes values asc or desc" });
     }
   }
   selectAllArticles(sort_by, order, author, topic)
-    .then(articles => {
+    .then((articles) => {
       res.status(200).send({ articles });
     })
     .catch(next);
