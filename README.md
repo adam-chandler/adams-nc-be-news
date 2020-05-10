@@ -1,6 +1,6 @@
 # Northcoders News Back End
 
-This repository is a RESTful news API which will later be built a front end.
+This repository is a RESTful news API.
 
 You can find the repository hosted [here](https://adams-be-nc-news.herokuapp.com/api/).
 
